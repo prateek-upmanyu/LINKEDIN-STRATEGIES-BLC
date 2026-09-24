@@ -6,53 +6,168 @@ from datetime import datetime
 from strategies_database import get_strategy_by_day
 from renderer import render_strategy_card
 
-BUFFER_PROFILE_ID = "6ab2ba02ea19ca0bdeb83136"  # BLC LinkedIn Business Page
-FREEIMAGE_API_KEY = "6d207e641835d34fc82813587b1c3144"
+BUFFER_TOKEN = (os.environ.get("BUFFER_TOKEN") or "").strip().strip('"').strip("'")
+FREEIMAGE_API_KEY = "6d207e02198a847aa98d0a2a901485a5"
 
 def upload_image_to_cdn(image_path):
-    print("Uploading strategy image to FreeImage CDN...")
-    headers = {
+    ua_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
-    with open(image_path, "rb") as f:
-        files = {"source": f}
-        data = {
-            "key": FREEIMAGE_API_KEY,
-            "action": "upload",
-            "format": "json"
-        }
-        res = requests.post(
-            "https://freeimage.host/api/1/upload",
-            files=files,
-            data=data,
-            headers=headers,
-            timeout=(5.0, 15.0)
-        )
-        res.raise_for_status()
-        json_data = res.json()
-        image_url = json_data["image"]["url"]
-        print(f"CDN Upload successful: {image_url}")
-        return image_url
+    image_url = None
 
-def post_to_buffer(buffer_token, text, image_url):
-    print(f"Posting strategy to Buffer channel {BUFFER_PROFILE_ID}...")
-    url = "https://api.bufferapp.com/1/updates/create.json"
-    payload = {
-        "access_token": buffer_token,
-        "profile_ids[]": [BUFFER_PROFILE_ID],
-        "text": text,
-        "media[picture]": image_url,
-        "media[photo]": image_url,
-        "now": "true"
-    }
+    # Provider 1: FreeImage.host
+    try:
+        with open(image_path, "rb") as f:
+            r_free = requests.post(
+                "https://freeimage.host/api/1/upload",
+                data={"key": FREEIMAGE_API_KEY, "action": "upload"},
+                files={"source": f},
+                headers=ua_headers,
+                timeout=(5.0, 12.0)
+            )
+            if r_free.status_code == 200:
+                image_url = r_free.json().get("image", {}).get("url")
+                if image_url:
+                    print(f"CDN Provider 1 (FreeImage) success: {image_url}")
+    except Exception as e:
+        print(f"CDN Provider 1 note: {e}")
+
+    # Provider 2: Catbox.moe
+    if not image_url:
+        try:
+            with open(image_path, "rb") as f:
+                r_cat = requests.post(
+                    "https://catbox.moe/user/api.php",
+                    data={"reqtype": "fileupload"},
+                    files={"fileToUpload": f},
+                    headers=ua_headers,
+                    timeout=(4.0, 10.0)
+                )
+                if r_cat.status_code == 200 and r_cat.text.startswith("http"):
+                    image_url = r_cat.text.strip()
+                    print(f"CDN Provider 2 (Catbox) success: {image_url}")
+        except Exception as e:
+            print(f"CDN Provider 2 note: {e}")
+
+    # Provider 3: Tmpfiles.org
+    if not image_url:
+        try:
+            with open(image_path, "rb") as f:
+                r_tmp = requests.post(
+                    "https://tmpfiles.org/api/v1/upload",
+                    files={"file": f},
+                    headers=ua_headers,
+                    timeout=(4.0, 10.0)
+                )
+                if r_tmp.status_code == 200:
+                    data = r_tmp.json()
+                    image_url = data.get("data", {}).get("url", "").replace("tmpfiles.org/", "tmpfiles.org/dl/")
+                    print(f"CDN Provider 3 (Tmpfiles) success: {image_url}")
+        except Exception as e:
+            print(f"CDN Provider 3 note: {e}")
+
+    if not image_url:
+        raise RuntimeError("Failed to upload image to any public CDN for Buffer.")
+
+    time.sleep(1.5)
+    return image_url
+
+def post_to_buffer(token, caption, image_url):
     headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
     }
-    res = requests.post(url, data=payload, headers=headers, timeout=(5.0, 15.0))
-    res.raise_for_status()
-    result = res.json()
-    print("Successfully posted strategy to Buffer!")
-    return result
+    url = "https://api.buffer.com"
+
+    # 1. Fetch organization ID
+    q_org = {"query": "query { account { organizations { id name } } }"}
+    r_org = requests.post(url, headers=headers, json=q_org, timeout=(4.0, 10.0))
+    if r_org.status_code != 200 or "data" not in r_org.json():
+        raise RuntimeError(f"Buffer organization query failed: {r_org.text}")
+    
+    orgs = r_org.json()["data"]["account"]["organizations"]
+    if not orgs:
+        raise RuntimeError("No organizations found in Buffer account.")
+    org_id = orgs[0]["id"]
+
+    # 2. Fetch channels (LinkedIn Business Page)
+    q_chan = {
+        "query": "query GetChannels($input: ChannelsInput!) { channels(input: $input) { id name service type } }",
+        "variables": {"input": {"organizationId": org_id}}
+    }
+    r_chan = requests.post(url, headers=headers, json=q_chan, timeout=(4.0, 10.0))
+    if r_chan.status_code != 200 or "data" not in r_chan.json():
+        raise RuntimeError(f"Buffer channels query failed: {r_chan.text}")
+    
+    channels = r_chan.json()["data"]["channels"]
+    target_channel = None
+    for c in channels:
+        if c.get("service") == "linkedin":
+            target_channel = c
+            break
+    
+    if not target_channel:
+        raise RuntimeError("No connected LinkedIn channel found in Buffer.")
+    
+    channel_id = target_channel["id"]
+    channel_name = target_channel["name"]
+    print(f"Targeting Buffer channel: '{channel_name}' (ID: {channel_id})")
+
+    # 3. Create post via Buffer GraphQL API
+    mutation = """
+    mutation CreatePost($input: CreatePostInput!) {
+      createPost(input: $input) {
+        ... on PostActionSuccess {
+          post {
+            id
+            status
+          }
+        }
+        ... on InvalidInputError {
+          message
+        }
+        ... on UnexpectedError {
+          message
+        }
+        ... on RestProxyError {
+          message
+        }
+      }
+    }
+    """
+
+    variables = {
+      "input": {
+        "channelId": channel_id,
+        "text": caption,
+        "mode": "shareNow",
+        "schedulingType": "automatic",
+        "assets": [
+          {
+            "image": {
+              "url": image_url
+            }
+          }
+        ]
+      }
+    }
+
+    res = requests.post(url, headers=headers, json={"query": mutation, "variables": variables}, timeout=(5.0, 15.0))
+    if res.status_code != 200:
+        raise RuntimeError(f"Buffer API request failed: {res.status_code} - {res.text}")
+    
+    res_data = res.json()
+    create_res = res_data.get("data", {}).get("createPost", {})
+    if "post" in create_res:
+        post_id = create_res["post"]["id"]
+        status = create_res["post"]["status"]
+        print(f"Buffer post created successfully! Post ID: {post_id} (Status: {status})")
+        return post_id
+    elif "message" in create_res:
+        raise RuntimeError(f"Buffer post creation failed: {create_res['message']}")
+    else:
+        raise RuntimeError(f"Buffer post creation failed: {res.text}")
 
 def main():
     print(f"Starting BLC LinkedIn Strategy Publisher - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -70,19 +185,18 @@ def main():
     )
     print(f"Strategy card rendered cleanly to {out_image}")
 
-    buffer_token = os.environ.get("BUFFER_TOKEN")
-    if not buffer_token:
+    if not BUFFER_TOKEN:
         print("BUFFER_TOKEN not set in environment. Skipping live Buffer post (local render test completed).")
         return
 
     cdn_url = upload_image_to_cdn(out_image)
-    post_to_buffer(buffer_token, strategy["caption"], cdn_url)
+    post_to_buffer(BUFFER_TOKEN, strategy["caption"], cdn_url)
 
     # Record history
     history_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "strategy_history.txt")
     with open(history_file, "a", encoding="utf-8") as f:
         f.write(f"{datetime.now().isoformat()} - Playbook #{strategy['id']} - {strategy['title']}\n")
-    print("Strategy history updated.")
+    print("Strategy history updated successfully.")
 
 if __name__ == "__main__":
     main()
