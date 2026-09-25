@@ -1,10 +1,7 @@
 name: Daily B2B Strategy & Tips Automation
 
 on:
-  schedule:
-    # 6:35 PM IST (1:05 PM UTC / 13:05 UTC) on Tuesday, Thursday, Saturday
-    - cron: '5 13 * * 2,4,6'
-  workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
+  workflow_dispatch: # Triggered by cron-job.org at exact 6:35 PM IST (Tue/Thu/Sat)
 
 jobs:
   publish-strategy:

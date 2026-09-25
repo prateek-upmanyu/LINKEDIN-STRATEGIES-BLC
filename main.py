@@ -186,8 +186,7 @@ def main():
     print(f"Strategy card rendered cleanly to {out_image}")
 
     if not BUFFER_TOKEN:
-        print("BUFFER_TOKEN not set in environment. Skipping live Buffer post (local render test completed).")
-        return
+        raise RuntimeError("BUFFER_TOKEN secret is missing or empty. Please set it in GitHub repository secrets.")
 
     cdn_url = upload_image_to_cdn(out_image)
     post_to_buffer(BUFFER_TOKEN, strategy["caption"], cdn_url)
