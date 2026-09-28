@@ -1,2 +1,3 @@
 2026-09-24T20:07:58.308121 - Playbook #3 - Overcoming 'Send Me An Email'
 2026-09-26T13:05:41.075370 - Playbook #34 - Objection Prevention vs Handling
+2026-09-28T13:05:43.638325 - Playbook #41 - The Follow-Up Velocity Rule
