@@ -26,6 +26,7 @@ jobs:
       - name: Run strategy publisher
         env:
           BUFFER_TOKEN: ${{ secrets.BUFFER_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python -u main.py
 
       - name: Commit and push updated strategy history
