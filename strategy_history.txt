@@ -6,3 +6,4 @@
 2026-10-04T13:05:40.329372 - Playbook #2 - Never Send 'Just Checking In' Emails
 2026-10-06T13:05:46.114688 - Playbook #11 - Building a Decision-Maker Map
 2026-10-08T13:05:36.988980 - Playbook #19 - Data Hygiene in Outbound Lists
+2026-10-10T13:05:39.527107 - Playbook #27 - Using Case Studies in Outbound
