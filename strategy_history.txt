@@ -7,3 +7,4 @@
 2026-10-06T13:05:46.114688 - Playbook #11 - Building a Decision-Maker Map
 2026-10-08T13:05:36.988980 - Playbook #19 - Data Hygiene in Outbound Lists
 2026-10-10T13:05:39.527107 - Playbook #27 - Using Case Studies in Outbound
+2026-10-12T13:05:49.854630 - Playbook #36 - The Mutual Action Plan Close
