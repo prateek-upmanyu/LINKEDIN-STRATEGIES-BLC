@@ -8,3 +8,4 @@
 2026-10-08T13:05:36.988980 - Playbook #19 - Data Hygiene in Outbound Lists
 2026-10-10T13:05:39.527107 - Playbook #27 - Using Case Studies in Outbound
 2026-10-12T13:05:49.854630 - Playbook #36 - The Mutual Action Plan Close
+2026-10-14T13:05:40.612628 - Playbook #151 - The 'Mutual Respect' Opener
