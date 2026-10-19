@@ -10,3 +10,4 @@
 2026-10-12T13:05:49.854630 - Playbook #36 - The Mutual Action Plan Close
 2026-10-14T13:05:40.612628 - Playbook #151 - The 'Mutual Respect' Opener
 2026-10-16T13:05:39.038639 - Playbook #155 - The 'Deal Retrospective' Review
+2026-10-19T13:05:41.961058 - Playbook #6 - The Gatekeeper Partnership Model
