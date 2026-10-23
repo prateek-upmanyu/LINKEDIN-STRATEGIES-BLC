@@ -12,3 +12,4 @@
 2026-10-16T13:05:39.038639 - Playbook #155 - The 'Deal Retrospective' Review
 2026-10-19T13:05:41.961058 - Playbook #6 - The Gatekeeper Partnership Model
 2026-10-21T13:05:41.850751 - Playbook #12 - The Power of Silence in Sales Calls
+2026-10-23T13:05:36.530080 - Playbook #17 - Defining Your Ideal Customer Profile
