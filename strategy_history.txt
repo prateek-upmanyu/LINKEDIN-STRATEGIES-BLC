@@ -15,3 +15,4 @@
 2026-10-23T13:05:36.530080 - Playbook #17 - Defining Your Ideal Customer Profile
 2026-10-26T13:05:38.046515 - Playbook #24 - Strategic Account Prioritization
 2026-10-28T13:05:39.502326 - Playbook #30 - The Power of Video Prospecting
+2026-10-30T13:05:40.610738 - Playbook #37 - Outbound During Economic Uncertainty
