@@ -17,3 +17,4 @@
 2026-10-28T13:05:39.502326 - Playbook #30 - The Power of Video Prospecting
 2026-10-30T13:05:40.610738 - Playbook #37 - Outbound During Economic Uncertainty
 2026-11-02T13:05:37.987561 - Playbook #44 - Creating Urgency Without Pressure
+2026-11-04T13:05:45.381455 - Playbook #50 - Outbound Automation Done Right
