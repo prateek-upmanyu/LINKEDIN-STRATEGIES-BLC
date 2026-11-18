@@ -23,3 +23,4 @@
 2026-11-11T13:05:38.785285 - Playbook #67 - The Gatekeeper as an Ally
 2026-11-13T13:05:36.113159 - Playbook #72 - The Pattern-Interrupt Opener
 2026-11-16T13:05:41.079755 - Playbook #78 - The 'Why Now?' Executive Driver
+2026-11-18T13:05:39.028238 - Playbook #83 - The 'Unsubscribe' Subject Line Hook
