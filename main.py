@@ -204,7 +204,8 @@ def main():
         raise RuntimeError("BUFFER_TOKEN secret is missing or empty. Please set it in GitHub repository secrets.")
 
     cdn_url = upload_image_to_cdn(out_image)
-    post_to_buffer(BUFFER_TOKEN, strategy["caption"], cdn_url)
+    caption = strategy["caption"].strip() + "\n\n📲 Get Bulk Leads Caller: https://linkface.in/bulkleadscaller"
+    post_to_buffer(BUFFER_TOKEN, caption, cdn_url)
 
     # Record history
     history_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "strategy_history.txt")
