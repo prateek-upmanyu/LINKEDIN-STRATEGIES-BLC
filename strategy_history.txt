@@ -26,3 +26,4 @@
 2026-11-18T13:05:39.028238 - Playbook #83 - The 'Unsubscribe' Subject Line Hook
 2026-11-20T13:05:44.458125 - Playbook #88 - The 'Price Objection' Disarming Pivot
 2026-11-23T13:05:38.276423 - Playbook #94 - The 'Unanswered Question' Discipline
+2026-11-25T13:05:36.969392 - Playbook #99 - The 'Competitor Landmine' Strategy
